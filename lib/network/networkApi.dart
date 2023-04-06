@@ -4,12 +4,26 @@ import 'package:flutter/foundation.dart';
 import 'package:project_final/model/productModel.dart';
 import 'package:http/http.dart' as http;
 
+// double checkDouble(dynamic value)
+
 List<Product> parseProduct(String resBody) {
   final Map<String, dynamic> jsonMap = jsonDecode(resBody);
   final List<dynamic> productListJson = jsonMap['data']['listProduct'];
-  return productListJson
+  List<Product> productList = productListJson
       .map((productJson) => Product.fromJson(productJson))
       .toList();
+
+  // Decode Unicode to UTF-8
+  productList.forEach((product) {
+    if (product.name != null) {
+      product.name = utf8.decode(product.name!.codeUnits);
+    }
+    if (product.description != null) {
+      product.description = utf8.decode(product.description!.codeUnits);
+    }
+  });
+
+  return productList;
 }
 
 // my url is https://phone-s.herokuapp.com/api/product/all
