@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, prefer_interpolation_to_compose_strings
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -30,12 +30,20 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         children: <Widget>[
           Container(
-            decoration: const BoxDecoration(color: Colors.amber),
-            child: Center(
-              child: FractionallySizedBox(
-                widthFactor: 0.8,
-                child: TextField(
-                  decoration: InputDecoration(
+            decoration: const BoxDecoration(
+              color: Colors.amber,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 50),
+                FractionallySizedBox(
+                  widthFactor: 0.8,
+                  child: TextField(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -43,50 +51,30 @@ class _HomePageState extends State<HomePage> {
                       hintStyle: TextStyle(color: Colors.grey[800]),
                       hintText: "Bạn muốn tìm kiếm sản phẩm nào ?",
                       fillColor: Colors.white70,
-                      prefixIcon: const Icon(Icons.search)),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            child: CarouselSlider.builder(
-              itemCount: urlImages.length,
-              options: CarouselOptions(
-                height: 100,
-                viewportFraction: 1,
-                autoPlay: true,
-                reverse: true,
-                autoPlayInterval: const Duration(seconds: 2),
-              ),
-              itemBuilder: (BuildContext context, int index, int realIndex) {
-                final urlImage = urlImages[index];
-                return buildImage(urlImage, index);
-              },
-            ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40),
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40))),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text("THƯƠNG HIỆU NỔI BẬT")),
+                      prefixIcon: const Icon(Icons.search),
+                    ),
                   ),
-                  // _buildBtnRow(),
-                ],
-              ),
+                ),
+                SizedBox(height: 50),
+                Container(
+                  height: 300,
+                  child: CarouselSlider.builder(
+                    itemCount: urlImages.length,
+                    options: CarouselOptions(
+                      height: 300,
+                      viewportFraction: 1,
+                      autoPlay: true,
+                      reverse: true,
+                      autoPlayInterval: const Duration(seconds: 2),
+                    ),
+                    itemBuilder:
+                        (BuildContext context, int index, int realIndex) {
+                      final urlImage = urlImages[index];
+                      return buildImage(urlImage, index);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 10),
@@ -96,59 +84,109 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
               constraints: const BoxConstraints.expand(),
               child: FutureBuilder(
-                  future: fetchProducts(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return GridView.builder(
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => detailProduct(
-                                            product: snapshot.data![index],
-                                          )));
-                            },
-                            child: Card(
-                              child: Column(
-                                children: <Widget>[
-                                  Text(
-                                    "Giảm giá: " +
-                                        snapshot.data![index].discount
-                                            .toString() +
-                                        "%",
-                                    style: const TextStyle(color: Colors.red),
+                future: fetchProducts(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return GridView.builder(
+                      itemCount: snapshot.data?.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => detailProduct(
+                                          product: snapshot.data![index],
+                                        )));
+                          },
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Stack(
+                                  children: <Widget>[
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.network(
+                                        snapshot.data![index].image.toString(),
+                                        width: double.infinity,
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          "${snapshot.data![index].discount}% OFF",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    snapshot.data![index].name.toString(),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  Image.network(
-                                    snapshot.data![index].image.toString(),
-                                    width: 100,
-                                    height: 100,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    snapshot.data![index].description
+                                        .toString(),
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                    ),
                                   ),
-                                  Text(
-                                        snapshot.data![index].name.toString(),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "\$${snapshot.data![index].price.toString()}",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
                                   ),
-                                  Text(
-                                    snapshot.data![index].price.toString(),
-                                    style: const TextStyle(color: Colors.red),
-                                  )
-                                ],
-                                // title: Text(snapshot.data![index].name.toString()),
-                                // // subtitle: Text(snapshot.data[index].price.toString()),
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text("${snapshot.error}");
-                    }
-                    return const CircularProgressIndicator();
-                  }),
+                          ),
+                        );
+                      },
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              ),
             ),
           ),
         ],

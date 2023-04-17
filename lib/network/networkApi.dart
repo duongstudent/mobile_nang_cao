@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:project_final/model/productModel.dart';
 import 'package:http/http.dart' as http;
 
-// double checkDouble(dynamic value)
-
 List<Product> parseProduct(String resBody) {
   final Map<String, dynamic> jsonMap = jsonDecode(resBody);
   final List<dynamic> productListJson = jsonMap['data']['listProduct'];
@@ -25,7 +23,6 @@ List<Product> parseProduct(String resBody) {
 
   return productList;
 }
-
 // my url is https://phone-s.herokuapp.com/api/product/all
 Future<List<Product>> fetchProducts() async {
   final res = await http

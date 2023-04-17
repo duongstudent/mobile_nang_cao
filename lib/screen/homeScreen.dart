@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final pages = [
     HomePage(),
     OrderPage(),
-    NoticePage(),
+    // NoticePage(),
     ProfilePage(),
   ];
 
@@ -33,27 +33,27 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) =>setState(() => currentIndex=index),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.amber,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Colors.white,
             ),
             BottomNavigationBarItem(
             icon: Icon(Icons.add_shopping_cart),
-            label: 'Home',
-            backgroundColor: Colors.blueAccent,
+            label: 'Cart',
+            backgroundColor: Colors.white,
             ),
-            BottomNavigationBarItem(
-            icon: Icon(Icons.circle_notifications),
-            label: 'Home',
-            backgroundColor: Colors.blueAccent,
-            ),
+            // BottomNavigationBarItem(
+            // icon: Icon(Icons.circle_notifications),
+            // label: 'Home',
+            // backgroundColor: Colors.blueAccent,
+            // ),
             BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
-            label: 'Home',
-            backgroundColor: Colors.blueAccent,
+            label: 'Profile',
+            backgroundColor: Colors.white,
             ),
         ]),
     );
