@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Column(
               children: <Widget>[
-                SizedBox(height: 50),
+                const SizedBox(height: 20),
                 FractionallySizedBox(
                   widthFactor: 0.8,
                   child: TextField(
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 20),
                 Container(
                   height: 300,
                   child: CarouselSlider.builder(
@@ -76,6 +76,52 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(40),
+                  topRight: Radius.circular(40),
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40)
+                )
+              ),
+              child: Column(
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Align(alignment: Alignment.centerLeft,
+                      child: Text("THƯƠNG HIỆU NỔI BẬT")),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                              'https://cdn.tgdd.vn/Brand/1/logo-iphone-220x48.png',
+                              height: 75.0,
+                              width: 150.0,
+                              ),
+                        ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                              'https://cdn.tgdd.vn/Brand/1/samsungnew-220x48-1.png',
+                              height: 50.0,
+                              width: 50.0,
+                              ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+                
+            ),),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -99,78 +145,87 @@ class _HomePageState extends State<HomePage> {
                                           product: snapshot.data![index],
                                         )));
                           },
-                          child: Card(
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Stack(
-                                  children: <Widget>[
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Image.network(
-                                        snapshot.data![index].image.toString(),
-                                        width: double.infinity,
-                                        height: 200,
-                                        fit: BoxFit.cover,
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height,
+                            child: Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Stack(
+                                    children: <Widget>[
+                                      ClipRRect(
+                                          borderRadius: BorderRadius.circular(20),
+                                          child: Image.network(
+                                            snapshot.data![index].image.toString(),
+                                            width: double.infinity,
+                                            height: 100,
+                                            fit: BoxFit.cover,
+                                          ),
                                       ),
-                                    ),
-                                    Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Text(
-                                          "${snapshot.data![index].discount}% OFF",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Text(
+                                            "${snapshot.data![index].discount}% OFF",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    snapshot.data![index].name.toString(),
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      snapshot.data![index].name.toString(),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Text(
-                                    snapshot.data![index].description
-                                        .toString(),
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
+                                  Row(
+                                    children: [
+                                      SizedBox(width: 10,),
+                                      Flexible(
+                                          child: RichText(
+                                            overflow: TextOverflow.ellipsis,
+                                            strutStyle: const StrutStyle(fontSize: 12.0),
+                                            text: TextSpan(
+                                              text: snapshot.data![index].description.toString(),
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "\$${snapshot.data![index].price.toString()}",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "\$${snapshot.data![index].price.toString()}",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );

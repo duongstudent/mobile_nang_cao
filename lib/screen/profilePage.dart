@@ -2,10 +2,12 @@
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:project_final/model/UserModel.dart';
+import 'package:project_final/network/networkApi.dart';
+import 'package:project_final/screen/historyPage.dart';
+import 'package:project_final/screen/inforPage.dart';
+import 'package:project_final/variable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -18,11 +20,11 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late SharedPreferences sharedPreferences;
   bool isLogin = false;
+
   //anh xa textfield
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
 
-  User? _user;
   @override
   void initState() {
     super.initState();
@@ -37,11 +39,13 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     } else {
       setState(() {
+        token = sharedPreferences.getString("token");
         isLogin = true;
       });
     }
   }
 
+  @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     phoneController.dispose();
@@ -72,12 +76,11 @@ class _ProfilePageState extends State<ProfilePage> {
       if (jsonResponse != null) {
         //Xu ly data User from body
         setState(() {
+          token = jsonResponse['data']['accessToken'];
           isLogin = true;
         });
         sharedPreferences.setString(
             "token", jsonResponse['data']['accessToken']);
-        //fetch User data
-        _user = parseUser(response.body);
       }
     } else {
       setState(() {
@@ -109,126 +112,136 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(
-              "https://i.pinimg.com/736x/d0/0c/5a/d00c5aac0b36935bdb01d05aea3da010.jpg"),
-          fit: BoxFit.cover,
-        ),
-      ),
+      color: Colors.white, // Set the background color to white
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          //Avatar
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://i.pinimg.com/736x/d0/0c/5a/d00c5aac0b36935bdb01d05aea3da010.jpg'),
-              radius: 120,
-            ),
-          ),
-          Text(_user!.email.toString()),
-          //Info
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              alignment: Alignment.centerLeft,
-              primary: Color.fromARGB(100, 22, 44, 33),
-            ),
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              setState(() {
-                isLogin = false;
-              });
-            },
-            label: const Text("Thông tin tài khoản"),
-          ),
-          //History
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              alignment: Alignment.centerLeft,
-              primary: Color.fromARGB(100, 22, 44, 33),
-            ),
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              setState(() {
-                isLogin = false;
-              });
-            },
-            label: const Text("Lịch sử mua hàng"),
-          ),
-          //Notice
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              alignment: Alignment.centerLeft,
-              primary: Color.fromARGB(100, 22, 44, 33),
-            ),
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              setState(() {
-                isLogin = false;
-              });
-            },
-            label: const Text("Thông báo"),
-          ),
-          // Favorite Product
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              alignment: Alignment.centerLeft,
-              primary: Color.fromARGB(100, 22, 44, 33),
-            ),
-            icon: const Icon(Icons.favorite),
-            onPressed: () {
-              setState(() {
-                isLogin = false;
-              });
-            },
-            label: const Text("Sản phẩm yêu thích"),
-          ),
-          // Discount
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              alignment: Alignment.centerLeft,
-              primary: Color.fromARGB(100, 22, 44, 33),
-            ),
-            icon: const Icon(Icons.discount),
-            onPressed: () {},
-            label: const Text("Ưu đãi của bạn"),
-          ),
-          //Logout
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              alignment: Alignment.centerLeft,
-              primary: Color.fromARGB(100, 22, 44, 33),
-            ),
-            icon: const Icon(Icons.exit_to_app),
-            onPressed: () {
-              sharedPreferences.clear;
-              sharedPreferences.commit();
-              setState(() {
-                isLogin = false;
-              });
-            },
-            label: const Text("Log out"),
-          ),
-        ]),
+        child: FutureBuilder(
+          future: fetchUser(token!),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final user = snapshot.data!;
+              return Column(
+                children: [
+                  // Avatar
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(user.img.toString()),
+                      radius: 100,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Buttons
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _buildProfileButton(
+                          icon: Icons.person,
+                          label: 'Thông tin tài khoản',
+                          onPressed: () {
+                            setState(() {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => InforPage()),
+                              );
+                            });
+                          },
+                        ),
+                        _buildProfileButton(
+                          icon: Icons.history,
+                          label: 'Lịch sử mua hàng',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HistoryPage()),
+                            );
+                          },
+                        ),
+                        _buildProfileButton(
+                          icon: Icons.notifications,
+                          label: 'Thông báo',
+                          onPressed: () {
+                            setState(() {
+                              isLogin = false;
+                            });
+                          },
+                        ),
+                        _buildProfileButton(
+                          icon: Icons.favorite,
+                          label: 'Sản phẩm yêu thích',
+                          onPressed: () {
+                            setState(() {
+                              isLogin = false;
+                            });
+                          },
+                        ),
+                        _buildProfileButton(
+                          icon: Icons.discount,
+                          label: 'Ưu đãi của bạn',
+                          onPressed: () {},
+                        ),
+                        _buildProfileButton(
+                          icon: Icons.password,
+                          label: 'Đổi Mật Khẩu',
+                          onPressed: () {},
+                        ),
+                        _buildProfileButton(
+                          icon: Icons.exit_to_app,
+                          label: 'Log out',
+                          onPressed: () {
+                            sharedPreferences.clear();
+                            sharedPreferences.commit();
+                            setState(() {
+                              isLogin = false;
+                              // token = "";
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}");
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size.fromHeight(50),
+          alignment: Alignment.centerLeft,
+          primary: const Color.fromARGB(100, 22, 44, 33),
+        ),
+        icon: Icon(icon),
+        label: Text(label),
+        onPressed: onPressed,
       ),
     );
   }
 
   //isLogin == false
-  //isLogin == false
   Widget LoginForm() {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -277,21 +290,46 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      signIn(phoneController.text, passwordController.text);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
-                  onPressed: () {
-                    signIn(phoneController.text, passwordController.text);
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      "Login",
-                      style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 8.0),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.indigo,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      _showAlertDialogRegister(context);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        "Register",
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
                 ),
@@ -304,8 +342,69 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-User parseUser(String body) {
-  final Map<String, dynamic> jsonMap = jsonDecode(body);
-  User user = User.fromJson(jsonMap["data"]["user"]);
-  return user;
+//Dialog Register
+Future<void> _showAlertDialogRegister(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Register'), // Add a title to the dialog
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              const Text("Please fill in the registration form:"),
+              const SizedBox(
+                  height:
+                      16), // Add some spacing between the text and text fields
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Name', // Provide a label for the text field
+                  border:
+                      OutlineInputBorder(), // Add a border around the text field
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true, // Hide the password input
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Register'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary:
+                          Colors.grey[400], // Use a different background color
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

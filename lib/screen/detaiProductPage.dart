@@ -1,7 +1,19 @@
 // ignore_for_file: file_names
 
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:project_final/model/cartModel.dart';
 import 'package:project_final/model/productModel.dart';
+import 'package:project_final/screen/cartPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import '../controler/cart_controler.dart';
+import '../network/networkApi.dart';
+import '../variable.dart';
 
 class detailProduct extends StatefulWidget {
   const detailProduct({super.key, required this.product});
@@ -13,17 +25,29 @@ class detailProduct extends StatefulWidget {
 }
 
 class _detailProductState extends State<detailProduct> {
+  CartControler cartControler = Get.find<CartControler>();
+
   late Product product;
 
-  int _countProduct = 0;
+  int _countProduct = 1;
   @override
   void initState() {
     super.initState();
     product = widget.product;
+    getToken();
+  }
+
+  getToken() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      token = sharedPreferences.getString("token");
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    bool IsAdd = false;
+
     return Scaffold(
       appBar: AppBar(),
       backgroundColor: Color.fromARGB(255, 243, 243, 243),
@@ -103,14 +127,14 @@ class _detailProductState extends State<detailProduct> {
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                      product.listAttributeOption![0].values![1]
-                                          .value
-                                          .toString(),
-                                    ),
-                                  ),
+                                  // ElevatedButton(
+                                  //   onPressed: () {},
+                                  //   child: Text(
+                                  //     product.listAttributeOption![0].values![1]
+                                  //         .value
+                                  //         .toString(),
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                               const SizedBox(
@@ -178,23 +202,27 @@ class _detailProductState extends State<detailProduct> {
                               ),
                               Row(
                                 children: [
+                                  // ElevatedButton(
+                                  //   onPressed: () {},
+                                  //   child: const Text("Mua Ngay"),
+                                  //   style: ElevatedButton.styleFrom(
+                                  //     primary: Colors.red,
+                                  //     padding: EdgeInsets.symmetric(
+                                  //         horizontal: 30, vertical: 10),
+                                  //     shape: RoundedRectangleBorder(
+                                  //       borderRadius: BorderRadius.circular(10),
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  // const SizedBox(
+                                  //   width: 10,
+                                  // ),
                                   ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text("Mua Ngay"),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.red,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 30, vertical: 10),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      if (token != null) {
+                                        addProducttoCart();
+                                      }
+                                    },
                                     child: const Text("Thêm Vào Giỏ"),
                                     style: ElevatedButton.styleFrom(
                                       primary: Colors.red,
@@ -304,7 +332,50 @@ class _detailProductState extends State<detailProduct> {
   void decreaseProduct() {
     setState(() {
       _countProduct--;
-      if (_countProduct < 0) _countProduct = 0;
+      if (_countProduct < 1) _countProduct = 1;
     });
+  }
+
+  void addProducttoCart() async {
+    Map data = {
+      "listAttribute": [product.listAttributeOption![0].values![0].id],
+      "productId": product.id,
+      "quantity": _countProduct
+    };
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer " + token!
+    };
+    var res = await http.post(
+        Uri.parse('https://phone-s.herokuapp.com/api/user/cart/insert'),
+        body: jsonEncode(data),
+        headers: headers);
+    var json = null;
+    if (res.statusCode == 200) {
+      List<Cart> cart = await fetchCart(token!);
+      cartControler.addToCart(cart);
+      // json = json.decode(res.body);
+      print("add success");
+    } else {
+      print(res.body);
+    }
+  }
+}
+
+// my url is https://phone-s.herokuapp.com/api/user/cart
+Future<List<Cart>> fetchCart(String tokenAccess) async {
+  Map<String, String> headers = {
+    "content-type": "application/json",
+    "accept": "*/*",
+    "Authorization": "Bearer " + tokenAccess
+  };
+  final res = await http.get(
+      Uri.parse('https://phone-s.herokuapp.com/api/user/cart'),
+      headers: headers);
+  if (res.statusCode == 200) {
+    return compute(parseCart, res.body);
+  } else {
+    throw Exception('Request API error');
   }
 }
