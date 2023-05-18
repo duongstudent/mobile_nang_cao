@@ -119,6 +119,7 @@ class _detailProductState extends State<detailProduct> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.amber,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
