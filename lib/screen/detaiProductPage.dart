@@ -137,7 +137,7 @@ class _detailProductState extends State<detailProduct> {
             setState(() {
               check = false;
             });
-            Navigator.pop(context);
+            Navigator.pop(context, "back");
           },
         ),
       ),

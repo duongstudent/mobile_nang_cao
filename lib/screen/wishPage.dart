@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_final/model/productModel.dart';
 import 'package:project_final/network/networkApi.dart';
 
 import '../variable.dart';
@@ -12,6 +13,14 @@ class WishPage extends StatefulWidget {
 }
 
 class _WishPageState extends State<WishPage> {
+  Future<List<Product>>? _futureList;
+
+  @override
+  void initState() {
+    _futureList = fetchWishList(token!);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,15 +41,15 @@ class _WishPageState extends State<WishPage> {
             child: Container(
               padding: const EdgeInsets.all(16),
               child: FutureBuilder(
-                future: fetchWishList(token!),
+                future: _futureList,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(
                       itemCount: snapshot.data?.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            String rs = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => detailProduct(
@@ -48,6 +57,12 @@ class _WishPageState extends State<WishPage> {
                                 ),
                               ),
                             );
+
+                            if (rs == "back") {
+                              setState(() {
+                                _futureList = fetchWishList(token!);
+                              });
+                            }
                           },
                           child: Card(
                             elevation: 5,
