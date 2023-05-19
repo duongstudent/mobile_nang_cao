@@ -1,9 +1,0 @@
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/icudtl.dat
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/flutter_windows.dll
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/AssetManifest.json
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/FontManifest.json
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/fonts/MaterialIcons-Regular.otf
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/kernel_blob.bin
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/NOTICES.Z
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
-C:/HKII_22_23/Android_NangCao/project_final/build/windows/runner/Debug/data/flutter_assets/shaders/ink_sparkle.frag
