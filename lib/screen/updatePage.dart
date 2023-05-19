@@ -57,107 +57,118 @@ class _UpdatePageState extends State<UpdatePage> {
 
   @override
   Widget build(BuildContext context) {
+    var center = Center(
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 20),
+            Table(
+              border: TableBorder.all(color: Colors.grey),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: const {
+                0: FlexColumnWidth(),
+                1: FlexColumnWidth(),
+              },
+              children: [
+                _buildTableRow(
+                  'Full Name:',
+                  TextField(
+                    controller: fullNameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your name',
+                      hintStyle: TextStyle(color: Colors.blue),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                _buildTableRow(
+                  'Gender:',
+                  DropdownButton(
+                    hint: _dropDownValue == null
+                        ? const Text('Gender', textAlign: TextAlign.center)
+                        : Text(
+                            _dropDownValue!,
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                    isExpanded: true,
+                    iconSize: 30.0,
+                    style: const TextStyle(color: Colors.blue),
+                    items: ['Nam', 'Nữ', 'Khác'].map(
+                      (val) {
+                        return DropdownMenuItem<String>(
+                          value: val,
+                          child: Text(val),
+                        );
+                      },
+                    ).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _dropDownValue = val!;
+                      });
+                    },
+                  ),
+                ),
+                _buildTableRow(
+                  'Country:',
+                  TextField(
+                    controller: countryController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your country',
+                      hintStyle: TextStyle(color: Colors.blue),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                _buildTableRow(
+                  'Nick Name:',
+                  TextField(
+                    controller: nickNameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your nick name',
+                      hintStyle: TextStyle(color: Colors.blue),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                updateProfile(
+                  fullNameController.text,
+                  countryController.text,
+                  _dropDownValue.toString(),
+                  nickNameController.text,
+                );
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        ),
+      ),
+    );
+
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          "Thay đổi thông tin các nhân",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.amber,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context, "aaa"),
         ),
       ),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                "Update Profile",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Table(
-                border: TableBorder.all(color: Colors.grey),
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0: FlexColumnWidth(),
-                  1: FlexColumnWidth(),
-                },
-                children: [
-                  _buildTableRow(
-                      'Full Name:',
-                      TextField(
-                        controller: fullNameController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your name',
-                          hintStyle: TextStyle(color: Colors.blue),
-                          border: InputBorder.none,
-                        ),
-                      )),
-                  _buildTableRow(
-                      'Gender:',
-                      DropdownButton(
-                        hint: _dropDownValue == null
-                            ? const Text('Gender', textAlign: TextAlign.center)
-                            : Text(
-                                _dropDownValue!,
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                        isExpanded: true,
-                        iconSize: 30.0,
-                        style: const TextStyle(color: Colors.blue),
-                        items: ['Nam', 'Nữ', 'Khác'].map(
-                          (val) {
-                            return DropdownMenuItem<String>(
-                              value: val,
-                              child: Text(val),
-                            );
-                          },
-                        ).toList(),
-                        onChanged: (val) {
-                          setState(() {
-                            _dropDownValue = val!;
-                          });
-                        },
-                      )),
-                  _buildTableRow(
-                      'Country:',
-                      TextField(
-                        controller: countryController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your country',
-                          hintStyle: TextStyle(color: Colors.blue),
-                          border: InputBorder.none,
-                        ),
-                      )),
-                  _buildTableRow(
-                      'Nick Name:',
-                      TextField(
-                        controller: nickNameController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your nick name',
-                          hintStyle: TextStyle(color: Colors.blue),
-                          border: InputBorder.none,
-                        ),
-                      )),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  updateProfile(
-                    fullNameController.text,
-                    countryController.text,
-                    _dropDownValue.toString(),
-                    nickNameController.text,
-                  );
-                },
-                child: const Text("Update"),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: center,
     );
   }
 

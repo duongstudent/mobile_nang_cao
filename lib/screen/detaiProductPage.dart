@@ -28,6 +28,7 @@ class _detailProductState extends State<detailProduct> {
   CartControler cartControler = Get.find<CartControler>();
 
   late Product product;
+  bool check = false;
 
   int _countProduct = 1;
   @override
@@ -35,6 +36,9 @@ class _detailProductState extends State<detailProduct> {
     super.initState();
     product = widget.product;
     getToken();
+    if (token != null) {
+      checkWishList();
+    }
   }
 
   getToken() async {
@@ -44,12 +48,99 @@ class _detailProductState extends State<detailProduct> {
     });
   }
 
+  List<String> parseCheck(String body) {
+    final Map<String, dynamic> jsonMap = jsonDecode(body);
+    List<String> list = List.from(jsonMap["data"]["product"]);
+    return list;
+  }
+
+  checkWishList() async {
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer ${token!}"
+    };
+    final res = await http.get(
+        Uri.parse(
+            'https://phone-s.herokuapp.com/api/user/wishlist/check?productId=${product.id}'),
+        headers: headers);
+    if (res.statusCode == 200) {
+      List<String> list = parseCheck(res.body);
+      if (list.isNotEmpty) {
+        setState(() {
+          check = true;
+        });
+      }
+    } else {
+      print(res.body);
+    }
+  }
+
+  addWishList() async {
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer ${token!}"
+    };
+    final res = await http.post(
+        Uri.parse(
+            'https://phone-s.herokuapp.com/api/user/wishlist/add?productId=${product.id}'),
+        headers: headers);
+    if (res.statusCode == 200) {
+      print("add success");
+      setState(() {
+        check = true;
+      });
+    } else {
+      print(res.body);
+    }
+  }
+
+  deleteWishList() async {
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer ${token!}"
+    };
+    final res = await http.delete(
+        Uri.parse(
+            'https://phone-s.herokuapp.com/api/user/wishlist/remove?productId=${product.id}'),
+        headers: headers);
+    if (res.statusCode == 200) {
+      print("delete success");
+      setState(() {
+        check = false;
+      });
+    } else {
+      print(res.body);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     bool IsAdd = false;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.amber,
+        title: Text(
+          "Mô tả sản phẩm",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            setState(() {
+              check = false;
+            });
+            Navigator.pop(context);
+          },
+        ),
+      ),
       backgroundColor: Color.fromARGB(255, 243, 243, 243),
       body: ListView(
         children: <Widget>[
@@ -127,18 +218,10 @@ class _detailProductState extends State<detailProduct> {
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  // ElevatedButton(
-                                  //   onPressed: () {},
-                                  //   child: Text(
-                                  //     product.listAttributeOption![0].values![1]
-                                  //         .value
-                                  //         .toString(),
-                                  //   ),
-                                  // ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                 ],
-                              ),
-                              const SizedBox(
-                                height: 10,
                               ),
                               Row(
                                 children: [
@@ -235,6 +318,36 @@ class _detailProductState extends State<detailProduct> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (token != null) {
+                                    if (check) {
+                                      //removeWishList
+                                      deleteWishList();
+                                    } else {
+                                      //addWishList
+                                      addWishList();
+                                    }
+                                  }
+                                },
+                                // styling the button
+                                style: ElevatedButton.styleFrom(
+                                  shape: CircleBorder(),
+                                  padding: EdgeInsets.all(20),
+                                  // Button color
+                                  backgroundColor: Colors.white,
+                                  // Splash color
+                                  foregroundColor: Colors.cyan,
+                                ),
+                                child: check
+                                    ? const Icon(Icons.favorite,
+                                        color: Colors.red)
+                                    : const Icon(Icons.favorite,
+                                        color: Colors.grey),
+                              )
                             ],
                           ),
                         ),
@@ -264,8 +377,8 @@ class _detailProductState extends State<detailProduct> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
                     child: Text(
                       "Mô Tả Sản Phẩm",
                       style: TextStyle(
@@ -284,15 +397,15 @@ class _detailProductState extends State<detailProduct> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10.0),
-                  Divider(thickness: 1.0),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
+                  const Divider(thickness: 1.0),
+                  const SizedBox(height: 10.0),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           "Price: ",
                           style: TextStyle(
                             fontSize: 18,

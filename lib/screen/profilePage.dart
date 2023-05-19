@@ -5,8 +5,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_final/network/networkApi.dart';
+import 'package:project_final/screen/changePassPage.dart';
 import 'package:project_final/screen/historyPage.dart';
 import 'package:project_final/screen/inforPage.dart';
+import 'package:project_final/screen/wishPage.dart';
 import 'package:project_final/variable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -49,11 +51,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     // Clean up the controller when the widget is disposed.
     phoneController.dispose();
-    super.dispose();
-  }
-
-  void disposeP() {
-    // Clean up the controller when the widget is disposed.
     passwordController.dispose();
     super.dispose();
   }
@@ -159,33 +156,43 @@ class _ProfilePageState extends State<ProfilePage> {
                             );
                           },
                         ),
-                        _buildProfileButton(
-                          icon: Icons.notifications,
-                          label: 'Thông báo',
-                          onPressed: () {
-                            setState(() {
-                              isLogin = false;
-                            });
-                          },
-                        ),
+                        // _buildProfileButton(
+                        //   icon: Icons.notifications,
+                        //   label: 'Thông báo',
+                        //   onPressed: () {
+                        //     setState(() {
+                        //       isLogin = false;
+                        //     });
+                        //   },
+                        // ),
                         _buildProfileButton(
                           icon: Icons.favorite,
                           label: 'Sản phẩm yêu thích',
                           onPressed: () {
                             setState(() {
-                              isLogin = false;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const WishPage()),
+                              );
                             });
                           },
                         ),
-                        _buildProfileButton(
-                          icon: Icons.discount,
-                          label: 'Ưu đãi của bạn',
-                          onPressed: () {},
-                        ),
+                        // _buildProfileButton(
+                        //   icon: Icons.discount,
+                        //   label: 'Ưu đãi của bạn',
+                        //   onPressed: () {},
+                        // ),
                         _buildProfileButton(
                           icon: Icons.password,
                           label: 'Đổi Mật Khẩu',
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ChangePassPage()),
+                            );
+                          },
                         ),
                         _buildProfileButton(
                           icon: Icons.exit_to_app,
@@ -205,7 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               );
             } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
+              return LoginForm();
             }
             return const Center(
               child: CircularProgressIndicator(),
@@ -227,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
           alignment: Alignment.centerLeft,
-          primary: const Color.fromARGB(100, 22, 44, 33),
+          primary: Colors.amber, // Thay đổi tông màu thành Colors.amber
         ),
         icon: Icon(icon),
         label: Text(label),
@@ -291,45 +298,41 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 16.0),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.2,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       primary: Colors.green,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
                     onPressed: () {
                       signIn(phoneController.text, passwordController.text);
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                    child: const Text(
+                      "Login",
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8.0),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.2,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       primary: Colors.indigo,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
                     onPressed: () {
                       _showAlertDialogRegister(context);
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Text(
-                        "Register",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                    child: const Text(
+                      "Register",
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
@@ -342,8 +345,30 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
+Register(String phone, String password) async {
+  Map data = {'phone': phone, 'password': password};
+  Map<String, String> headers = {
+    "content-type": "application/json",
+    "accept": "*/*",
+  };
+  var jsonResponse = null;
+  var response = await http.post(
+      Uri.parse('https://phone-s.herokuapp.com/api/user/register'),
+      body: jsonEncode(data),
+      headers: headers);
+  if (response.statusCode == 200) {
+    print("Register success");
+  } else {
+    print(response.body);
+  }
+}
+
 //Dialog Register
 Future<void> _showAlertDialogRegister(BuildContext context) async {
+  final TextEditingController passwordRController = TextEditingController();
+  final TextEditingController phoneRController = TextEditingController();
+  final TextEditingController passwordR1Controller = TextEditingController();
+
   return showDialog<void>(
     context: context,
     barrierDismissible: false, // user must tap button!
@@ -358,23 +383,28 @@ Future<void> _showAlertDialogRegister(BuildContext context) async {
                   height:
                       16), // Add some spacing between the text and text fields
               TextField(
-                decoration: InputDecoration(
-                  labelText: 'Name', // Provide a label for the text field
+                controller: phoneRController,
+                decoration: const InputDecoration(
+                  labelText:
+                      'Phone Number', // Provide a label for the text field
                   border:
                       OutlineInputBorder(), // Add a border around the text field
                 ),
               ),
               const SizedBox(height: 8),
               TextField(
-                decoration: InputDecoration(
-                  labelText: 'Email',
+                obscureText: true,
+                controller: passwordRController,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 8),
               TextField(
-                decoration: InputDecoration(
-                  labelText: 'Password',
+                controller: passwordR1Controller,
+                decoration: const InputDecoration(
+                  labelText: 'Repassword',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true, // Hide the password input
@@ -385,7 +415,12 @@ Future<void> _showAlertDialogRegister(BuildContext context) async {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      if (passwordRController.text ==
+                          passwordR1Controller.text) {
+                        Register(
+                            phoneRController.text, passwordRController.text);
+                        Navigator.of(context).pop();
+                      }
                     },
                     child: const Text('Register'),
                   ),

@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +26,7 @@ class _CartPageState extends State<CartPage> {
   CartControler cartControler = Get.find<CartControler>();
 
   List<String> listCart = [];
-  late List<Cart> listProduct;
+  List<Cart> listProduct = [];
   double total = 0;
   late Future<List<Cart>> _futureCart;
   String? name;
@@ -44,11 +46,13 @@ class _CartPageState extends State<CartPage> {
   void getData() {
     _futureCart.then((value) => {
           value.forEach((element) {
-            listCart.add(element.id.toString());
-            // listCart.add('"${element.id}"');
-            total += (element.price! * element.quantity!);
+            if (element.choose!) {
+              listCart.add(element.id.toString());
+              // listCart.add('"${element.id}"');
+              total += (element.price! * element.quantity!);
+              listProduct.add(element);
+            }
           }),
-          listProduct = value
         });
   }
 
@@ -62,13 +66,88 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
+  changeStatus(bool status, int quantity, String id) async {
+    Map data = {"quantity": quantity, "status": !status};
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer " + token!,
+    };
+    var jsonResponse = null;
+    var response = await http.put(
+      Uri.parse('https://phone-s.herokuapp.com/api/user/cart/update/${id}'),
+      body: jsonEncode(data),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        _futureCart = fetchCart(token!);
+      });
+      print("update cart");
+    } else {
+      print(response.body);
+    }
+  }
+
+  removeQuantity(bool status, int quantity, String id) async {
+    if (quantity-- < 0) {
+      quantity = 0;
+    }
+    Map data = {"quantity": quantity--, "status": status};
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer " + token!,
+    };
+    var jsonResponse = null;
+    var response = await http.put(
+      Uri.parse('https://phone-s.herokuapp.com/api/user/cart/update/${id}'),
+      body: jsonEncode(data),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        _futureCart = fetchCart(token!);
+      });
+      print("update cart");
+    } else {
+      print(response.body);
+    }
+  }
+
+  addQuantity(bool status, int quantity, String id) async {
+    if (quantity++ > 10) {
+      quantity = 10;
+    }
+    Map data = {"quantity": quantity++, "status": status};
+    Map<String, String> headers = {
+      "content-type": "application/json",
+      "accept": "*/*",
+      "Authorization": "Bearer " + token!,
+    };
+    var jsonResponse = null;
+    var response = await http.put(
+      Uri.parse('https://phone-s.herokuapp.com/api/user/cart/update/${id}'),
+      body: jsonEncode(data),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        _futureCart = fetchCart(token!);
+      });
+      print("update cart");
+    } else {
+      print(response.body);
+    }
+  }
+
   //check dang nhap, xu ly lai logic
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-      children: <Widget>[
-        IconButton(
+      body: Column(
+        children: <Widget>[
+          IconButton(
             onPressed: () {
               if (token != null) {
                 setState(() {
@@ -76,104 +155,61 @@ class _CartPageState extends State<CartPage> {
                 });
               }
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.refresh,
               color: Colors.black,
-            )),
-        // Text(token??"aaa"),
-
-        Expanded(
-            child:
-                // Check token
-                token != null
-                    ?
-                    // ListView.builder(
-                    //       scrollDirection: Axis.vertical,
-                    //       shrinkWrap: true,
-                    //       itemCount: cartControler.cartItems.length,
-                    //       itemBuilder: (context, index) {
-                    //         return Card(
-                    //           elevation: 2,
-                    //           child: Padding(
-                    //             padding: const EdgeInsets.all(8.0),
-                    //             child: Row(
-                    //               crossAxisAlignment: CrossAxisAlignment.start,
-                    //               children: [
-                    //                 SizedBox(
-                    //                   width:
-                    //                       MediaQuery.of(context).size.width / 3,
-                    //                   height:
-                    //                       MediaQuery.of(context).size.height /
-                    //                           6,
-                    //                   child: Image.network(
-                    //                     cartControler.cartItems[index].image
-                    //                         .toString(),
-                    //                     fit: BoxFit.cover,
-                    //                   ),
-                    //                 ),
-                    //                 SizedBox(width: 16),
-                    //                 Expanded(
-                    //                   child: Column(
-                    //                     crossAxisAlignment:
-                    //                         CrossAxisAlignment.start,
-                    //                     children: [
-                    //                       Text(
-                    //                         cartControler.cartItems[index].name
-                    //                             .toString(),
-                    //                         style: TextStyle(
-                    //                           fontSize: 16,
-                    //                           fontWeight: FontWeight.bold,
-                    //                         ),
-                    //                       ),
-                    //                       SizedBox(height: 8),
-                    //                       Text(
-                    //                         "Price: ${cartControler.cartItems[index].price.toString()}",
-                    //                         style: TextStyle(
-                    //                           fontSize: 14,
-                    //                           color: Colors.grey,
-                    //                         ),
-                    //                       ),
-                    //                       SizedBox(height: 8),
-                    //                       ElevatedButton(
-                    //                         onPressed: () {
-                    //                           cartControler.removeFromCart(
-                    //                               cartControler
-                    //                                   .cartItems[index]);
-                    //                           deleteCart(cartControler
-                    //                               .cartItems[index].id!);
-                    //                         },
-                    //                         child: Text("Remove"),
-                    //                       ),
-                    //                     ],
-                    //                   ),
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //           ),
-                    //         );
-                    //       },
-                    //     )
-                    listCartBuilder()
-                    : const Text("Ban chua dang nhap")),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
+            ),
+          ),
+          Expanded(
+            child: token != null
+                ? listCartBuilder()
+                : const Text("Bạn chưa đăng nhập"),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
                 onPressed: () async {
                   if (token != null) {
                     getData();
-                    chooseAllCart();
+                    String order = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderPage(
+                          listCart: listCart,
+                          listProduct: listProduct,
+                          total: total,
+                        ),
+                      ),
+                    );
+                    if (order == "success") {
+                      setState(() {
+                        _futureCart = fetchCart(token!);
+                        listCart = [];
+                        listProduct = [];
+                        total = 0;
+                      });
+                    }
+                    if (order == "back") {
+                      setState(() {
+                        listCart = [];
+                        listProduct = [];
+                        total = 0;
+                      });
+                    }
                   }
                 },
-                child: const Text("Mua Hàng")),
-          ),
-        )
-      ],
-    ));
+                child: const Text("Mua Hàng"),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
-  FutureBuilder listCartBuilder() {
+  FutureBuilder<dynamic> listCartBuilder() {
     return FutureBuilder(
       future: _futureCart,
       builder: (context, snapshot) {
@@ -190,6 +226,21 @@ class _CartPageState extends State<CartPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Column(
+                        children: [
+                          const SizedBox(height: 40),
+                          Checkbox(
+                            value: snapshot.data![index].choose,
+                            onChanged: (value) {
+                              changeStatus(
+                                snapshot.data![index].choose,
+                                snapshot.data![index].quantity,
+                                snapshot.data![index].id,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 3,
                         height: MediaQuery.of(context).size.height / 6,
@@ -198,35 +249,67 @@ class _CartPageState extends State<CartPage> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               snapshot.data![index].name.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
                               "Price: ${snapshot.data![index].price.toString()}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
                               ),
                             ),
-                            SizedBox(height: 8),
-                            ElevatedButton(
-                              onPressed: () {
-                                deleteCart(snapshot.data![index].id);
-                              },
-                              child: Text("Remove"),
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    removeQuantity(
+                                      snapshot.data![index].choose,
+                                      snapshot.data![index].quantity,
+                                      snapshot.data![index].id,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.remove),
+                                ),
+                                Text(snapshot.data![index].quantity.toString()),
+                                IconButton(
+                                  onPressed: () {
+                                    addQuantity(
+                                      snapshot.data![index].choose,
+                                      snapshot.data![index].quantity,
+                                      snapshot.data![index].id,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.add),
+                                ),
+                              ],
                             ),
                           ],
                         ),
+                      ),
+                      Column(
+                        children: [
+                          const SizedBox(height: 40),
+                          IconButton(
+                            onPressed: () {
+                              deleteCart(snapshot.data![index].id);
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

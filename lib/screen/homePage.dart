@@ -3,6 +3,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:project_final/screen/detaiProductPage.dart';
+import 'package:project_final/screen/searchPage.dart';
 
 import '../network/networkApi.dart';
 
@@ -14,6 +15,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   final urlImages = [
     'https://cdn.hoanghamobile.com/i/home/Uploads/2022/10/11/vivo-v25-series-1200x382.jpg',
     'https://cdn.hoanghamobile.com/i/home/Uploads/2022/10/21/iphone-14-1200x382.jpg',
@@ -42,17 +51,33 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
                 FractionallySizedBox(
                   widthFactor: 0.8,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            hintStyle: TextStyle(color: Colors.grey[800]),
+                            hintText: "Bạn muốn tìm kiếm sản phẩm nào ?",
+                            fillColor: Colors.white70,
+                          ),
+                        ),
                       ),
-                      filled: true,
-                      hintStyle: TextStyle(color: Colors.grey[800]),
-                      hintText: "Bạn muốn tìm kiếm sản phẩm nào ?",
-                      fillColor: Colors.white70,
-                      prefixIcon: const Icon(Icons.search),
-                    ),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SearchPage(
+                                          query: searchController.text,
+                                        )));
+                          },
+                          icon: const Icon(Icons.search))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -77,51 +102,116 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+          const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(1.0),
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40)
-                )
-              ),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(40),
+                      topRight: Radius.circular(40),
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40))),
               child: Column(
                 children: <Widget>[
+                  SizedBox(height: 5),
                   const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Align(alignment: Alignment.centerLeft,
-                      child: Text("THƯƠNG HIỆU NỔI BẬT")),
+                    padding: EdgeInsets.all(5),
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: Text("THƯƠNG HIỆU NỔI BẬT")),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(4.0),
                     child: Row(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                  query: 'Iphone',
+                                ),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
                               'https://cdn.tgdd.vn/Brand/1/logo-iphone-220x48.png',
-                              height: 75.0,
-                              width: 150.0,
-                              ),
+                              height: 35.0,
+                              width: 100.0,
+                            ),
+                          ),
                         ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
-                              'https://cdn.tgdd.vn/Brand/1/samsungnew-220x48-1.png',
-                              height: 50.0,
-                              width: 50.0,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                  query: 'sam sung',
+                                ),
                               ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              'https://cdn.tgdd.vn/Brand/1/samsungnew-220x48-1.png',
+                              height: 35.0,
+                              width: 100.0,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                  query: 'oppo',
+                                ),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              'https://cdn.tgdd.vn/Brand/1/OPPO42-b_5.jpg',
+                              height: 35.0,
+                              width: 100.0,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                  query: 'nokia',
+                                ),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              'https://cdn.tgdd.vn/Brand/1/Nokia42-b_21.jpg',
+                              height: 35.0,
+                              width: 100.0,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   )
                 ],
-                
-            ),),
+              ),
+            ),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -157,13 +247,14 @@ class _HomePageState extends State<HomePage> {
                                   Stack(
                                     children: <Widget>[
                                       ClipRRect(
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Image.network(
-                                            snapshot.data![index].image.toString(),
-                                            width: double.infinity,
-                                            height: 100,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.network(
+                                          snapshot.data![index].image
+                                              .toString(),
+                                          width: double.infinity,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                       Positioned(
                                         top: 10,
@@ -198,19 +289,24 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   Row(
                                     children: [
-                                      SizedBox(width: 10,),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
                                       Flexible(
-                                          child: RichText(
-                                            overflow: TextOverflow.ellipsis,
-                                            strutStyle: const StrutStyle(fontSize: 12.0),
-                                            text: TextSpan(
-                                              text: snapshot.data![index].description.toString(),
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                              ),
+                                        child: RichText(
+                                          overflow: TextOverflow.ellipsis,
+                                          strutStyle:
+                                              const StrutStyle(fontSize: 12.0),
+                                          text: TextSpan(
+                                            text: snapshot
+                                                .data![index].description
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
                                             ),
                                           ),
                                         ),
+                                      ),
                                     ],
                                   ),
                                   Padding(
